@@ -1,12 +1,12 @@
 package com.garena.autoclicker
 
-import android.accessibilityservice.AccessibilityServiceInfo
+import android.app.AppOpsManager
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.Process
 import android.provider.Settings
-import android.view.accessibility.AccessibilityManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.garena.autoclicker.databinding.ActivityMainBinding
@@ -21,7 +21,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.btnGrantOverlay.setOnClickListener { requestOverlayPermission() }
-        binding.btnGrantAccessibility.setOnClickListener { requestAccessibilityPermission() }
+        binding.btnGrantUsage.setOnClickListener { requestUsageStatsPermission() }
         binding.btnLaunchOverlay.setOnClickListener { launchFloatingWindow() }
     }
 
@@ -32,37 +32,36 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateStatus() {
         val overlayOk = Settings.canDrawOverlays(this)
-        val accessibilityOk = isAccessibilityEnabled()
+        val usageOk = hasUsageStatsPermission()
 
         binding.tvOverlayStatus.text = if (overlayOk) "✅ Overlay: Granted" else "❌ Overlay: Not Granted"
-        binding.tvAccessibilityStatus.text = if (accessibilityOk) "✅ Accessibility: Enabled" else "❌ Accessibility: Disabled"
-        binding.btnLaunchOverlay.isEnabled = overlayOk && accessibilityOk
+        binding.tvUsageStatus.text = if (usageOk) "✅ Usage Access: Granted" else "❌ Usage Access: Not Granted"
+        binding.btnLaunchOverlay.isEnabled = overlayOk
     }
 
-    private fun isAccessibilityEnabled(): Boolean {
-        val am = getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
-        val enabled = am.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_ALL_MASK)
-        return enabled.any { it.id.contains(packageName) }
+    private fun hasUsageStatsPermission(): Boolean {
+        val appOps = getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
+        val mode = appOps.unsafeCheckOpNoThrow(
+            AppOpsManager.OPSTR_GET_USAGE_STATS, Process.myUid(), packageName
+        )
+        return mode == AppOpsManager.MODE_ALLOWED
     }
 
     private fun requestOverlayPermission() {
         if (!Settings.canDrawOverlays(this)) {
-            val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName"))
-            startActivity(intent)
+            startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName")))
         } else {
             Toast.makeText(this, "Overlay already granted!", Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun requestAccessibilityPermission() {
-        val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
-        startActivity(intent)
-        Toast.makeText(this, "Enable 'Garena Auto Clicker' in Accessibility", Toast.LENGTH_LONG).show()
+    private fun requestUsageStatsPermission() {
+        startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
+        Toast.makeText(this, "Enable usage access for Garena Auto Clicker", Toast.LENGTH_LONG).show()
     }
 
     private fun launchFloatingWindow() {
-        val intent = Intent(this, FloatingWindowService::class.java)
-        startForegroundService(intent)
+        startForegroundService(Intent(this, FloatingWindowService::class.java))
         Toast.makeText(this, "Floating window started!", Toast.LENGTH_SHORT).show()
         finish()
     }
