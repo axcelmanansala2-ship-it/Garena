@@ -1,79 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:padding="24dp"
     android:background="#1A1A2E">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="🎮 Garena Auto Clicker"
-        android:textColor="#E0E0E0"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="6dp"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Smart detection — no accessibility needed"
-        android:textColor="#9E9E9E"
-        android:textSize="12sp"
-        android:layout_marginBottom="28dp"/>
-
-    <TextView
-        android:id="@+id/tvOverlayStatus"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="❌ Overlay: Not Granted"
-        android:textColor="#FF5252"
-        android:textSize="15sp"
-        android:layout_marginBottom="6dp"/>
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:padding="24dp">
 
-    <TextView
-        android:id="@+id/tvUsageStatus"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="❌ Usage Access: Not Granted"
-        android:textColor="#FF5252"
-        android:textSize="15sp"
-        android:layout_marginBottom="22dp"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🎮 Garena Auto Clicker"
+            android:textColor="#E0E0E0"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="4dp"/>
 
-    <Button
-        android:id="@+id/btnGrantOverlay"
-        android:layout_width="match_parent"
-        android:layout_height="52dp"
-        android:text="1. Grant Overlay Permission"
-        android:backgroundTint="#3D5AFE"
-        android:layout_marginBottom="10dp"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Auto-clicks Via → Homepage"
+            android:textColor="#9E9E9E"
+            android:textSize="13sp"
+            android:layout_marginBottom="24dp"/>
 
-    <Button
-        android:id="@+id/btnGrantUsage"
-        android:layout_width="match_parent"
-        android:layout_height="52dp"
-        android:text="2. Grant Usage Access (Optional)"
-        android:backgroundTint="#3D5AFE"
-        android:layout_marginBottom="22dp"/>
+        <TextView android:id="@+id/tvOverlayStatus"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="❌ Overlay: Not Granted" android:textColor="#FF5252"
+            android:textSize="15sp" android:layout_marginBottom="4dp"/>
 
-    <Button
-        android:id="@+id/btnLaunchOverlay"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:text="▶  Launch Floating Window"
-        android:textSize="16sp"
-        android:backgroundTint="#43A047"
-        android:enabled="false"/>
+        <TextView android:id="@+id/tvAccessibilityStatus"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="❌ Accessibility: Disabled" android:textColor="#FF5252"
+            android:textSize="15sp" android:layout_marginBottom="20dp"/>
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Only Overlay permission is required.\nUsage Access improves Via detection speed."
-        android:textColor="#616161"
-        android:textSize="11sp"
-        android:gravity="center"
-        android:layout_marginTop="16dp"/>
+        <Button android:id="@+id/btnGrantOverlay"
+            android:layout_width="match_parent" android:layout_height="50dp"
+            android:text="Step 1 — Grant Overlay Permission"
+            android:backgroundTint="#3D5AFE" android:layout_marginBottom="10dp"/>
 
-</LinearLayout>
+        <Button android:id="@+id/btnAllowRestricted"
+            android:layout_width="match_parent" android:layout_height="50dp"
+            android:text="Step 2 — Open App Info (tap ⋮ → Allow restricted settings)"
+            android:backgroundTint="#F57C00" android:layout_marginBottom="10dp"
+            android:textSize="12sp"/>
+
+        <Button android:id="@+id/btnGrantAccessibility"
+            android:layout_width="match_parent" android:layout_height="50dp"
+            android:text="Step 3 — Enable Accessibility Service"
+            android:backgroundTint="#3D5AFE" android:layout_marginBottom="24dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ℹ️  Step 2 only needed once if you see 'Restricted setting'. Tap App Info → three-dot ⋮ menu → Allow restricted settings → back to Step 3."
+            android:textColor="#9E9E9E"
+            android:textSize="11sp"
+            android:layout_marginBottom="20dp"/>
+
+        <Button android:id="@+id/btnLaunchOverlay"
+            android:layout_width="match_parent" android:layout_height="56dp"
+            android:text="▶  Launch Floating Window"
+            android:textSize="16sp"
+            android:backgroundTint="#43A047"
+            android:enabled="false"/>
+
+    </LinearLayout>
+</ScrollView>
