@@ -16,7 +16,6 @@ class GarenaAccessibilityService : AccessibilityService() {
     companion object {
         var instance: GarenaAccessibilityService? = null
         var isClickEnabled = false
-        var debugMode = false
     }
 
     private val handler = Handler(Looper.getMainLooper())
@@ -25,14 +24,13 @@ class GarenaAccessibilityService : AccessibilityService() {
 
     override fun onServiceConnected() {
         instance = this
-        val info = serviceInfo ?: AccessibilityServiceInfo()
+        // capabilities come from XML (canPerformGestures=true), just update event scope
+        val info = AccessibilityServiceInfo()
         info.eventTypes = AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED or
-                          AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED or
-                          AccessibilityEvent.TYPE_VIEW_SCROLLED
+                          AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED
         info.feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC
         info.flags = AccessibilityServiceInfo.FLAG_REPORT_VIEW_IDS or
                      AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS
-        info.capabilities = AccessibilityServiceInfo.CAPABILITY_CAN_PERFORM_GESTURES
         info.notificationTimeout = 100
         serviceInfo = info
         handler.post {
@@ -60,20 +58,10 @@ class GarenaAccessibilityService : AccessibilityService() {
         if (!isClickEnabled) return
         val root = rootInActiveWindow ?: return
 
-        // Try ALL methods in order
         val clicked = findAndClickByText(root) || findAndClickByClass(root)
-
         if (!clicked) {
-            // Fallback: toast what we found + try gesture at bottom bar
-            if (debugMode) {
-                val found = collectAllText(root)
-                handler.post {
-                    Toast.makeText(applicationContext,
-                        "Via nodes: $found", Toast.LENGTH_LONG).show()
-                }
-            }
-            // Try gesture tap on likely positions (bottom nav bar at ~y=90% of screen)
-            performGestureClick(540, 1850) // typical Via homepage button position
+            // Fallback: gesture tap on Via's typical Homepage button position (bottom nav area)
+            performGestureClick(540, 1800)
         }
     }
 
@@ -86,10 +74,12 @@ class GarenaAccessibilityService : AccessibilityService() {
                 if (target != null) {
                     val bounds = Rect()
                     target.getBoundsInScreen(bounds)
-                    performGestureClick(bounds.centerX(), bounds.centerY())
-                    lastClickTime = System.currentTimeMillis()
-                    isClickEnabled = false
-                    return true
+                    if (bounds.width() > 0) {
+                        performGestureClick(bounds.centerX(), bounds.centerY())
+                        lastClickTime = System.currentTimeMillis()
+                        isClickEnabled = false
+                        return true
+                    }
                 }
             }
         }
@@ -97,12 +87,11 @@ class GarenaAccessibilityService : AccessibilityService() {
     }
 
     private fun findAndClickByClass(root: AccessibilityNodeInfo): Boolean {
-        // Try address bar / EditText — click it and type homepage
-        val editTexts = root.findAccessibilityNodeInfosByText("")
-        for (node in editTexts) {
-            if (node.className?.contains("EditText") == true && node.isEditable) {
+        for (i in 0 until root.childCount) {
+            val child = root.getChild(i) ?: continue
+            if (child.className?.contains("EditText") == true && child.isEditable) {
                 val bounds = Rect()
-                node.getBoundsInScreen(bounds)
+                child.getBoundsInScreen(bounds)
                 if (bounds.width() > 200) {
                     performGestureClick(bounds.centerX(), bounds.centerY())
                     lastClickTime = System.currentTimeMillis()
@@ -110,12 +99,14 @@ class GarenaAccessibilityService : AccessibilityService() {
                     return true
                 }
             }
+            if (findAndClickByClass(child)) return true
         }
         return false
     }
 
     fun performGestureClick(x: Int, y: Int) {
-        val path = Path().also { it.moveTo(x.toFloat(), y.toFloat()) }
+        val path = Path()
+        path.moveTo(x.toFloat(), y.toFloat())
         val stroke = GestureDescription.StrokeDescription(path, 0, 50)
         val gesture = GestureDescription.Builder().addStroke(stroke).build()
         dispatchGesture(gesture, object : GestureResultCallback() {
@@ -132,19 +123,6 @@ class GarenaAccessibilityService : AccessibilityService() {
                 }
             }
         }, null)
-    }
-
-    private fun collectAllText(node: AccessibilityNodeInfo, depth: Int = 0): String {
-        if (depth > 4) return ""
-        val sb = StringBuilder()
-        val txt = node.text?.toString()
-        val desc = node.contentDescription?.toString()
-        val cls = node.className?.toString()?.substringAfterLast(".")
-        if (!txt.isNullOrBlank() || !desc.isNullOrBlank())
-            sb.append("[$cls:${txt ?: desc}]")
-        for (i in 0 until node.childCount)
-            sb.append(collectAllText(node.getChild(i) ?: continue, depth + 1))
-        return sb.toString()
     }
 
     private fun findClickableParent(node: AccessibilityNodeInfo): AccessibilityNodeInfo? {
