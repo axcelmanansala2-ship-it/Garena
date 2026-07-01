@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="160dp"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="#DD1A1A2E"
+    android:padding="12dp"
+    android:elevation="8dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="🎮"
+        android:textSize="32sp"
+        android:layout_marginBottom="4dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="GARENA"
+        android:textColor="#E0E0E0"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        android:letterSpacing="0.2"
+        android:layout_marginBottom="10dp"/>
+
+    <Button
+        android:id="@+id/btnStartStop"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:text="▶ START"
+        android:textColor="#FFFFFF"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:backgroundTint="#43A047"
+        android:layout_marginBottom="6dp"/>
+
+    <Button
+        android:id="@+id/btnClose"
+        android:layout_width="match_parent"
+        android:layout_height="32dp"
+        android:text="✕ Close"
+        android:textColor="#FFFFFF"
+        android:textSize="11sp"
+        android:backgroundTint="#616161"/>
+
+</LinearLayout>

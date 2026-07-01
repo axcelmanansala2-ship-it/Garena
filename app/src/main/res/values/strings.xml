@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Garena Auto Clicker</string>
+    <string name="accessibility_service_label">Garena Auto Clicker</string>
+    <string name="accessibility_service_description">Automatically clicks Via app and navigates to Homepage</string>
+</resources>
