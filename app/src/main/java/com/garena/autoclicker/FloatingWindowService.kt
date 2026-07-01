@@ -23,6 +23,7 @@ class FloatingWindowService : Service() {
     private lateinit var floatingView: android.view.View
     private val handler = Handler(Looper.getMainLooper())
     private val VIA_PACKAGES = listOf("mark.via.gp", "mark.via", "mark.via.sh")
+    private var btnStartStop: Button? = null
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -38,7 +39,7 @@ class FloatingWindowService : Service() {
         getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
         val notif: Notification = NotificationCompat.Builder(this, channelId)
             .setContentTitle("Garena Auto Clicker")
-            .setContentText("Overlay active — tap START to auto-click Via")
+            .setContentText("Overlay active — tap START to auto-click Via Homepage")
             .setSmallIcon(android.R.drawable.ic_media_play)
             .build()
         startForeground(1, notif)
@@ -70,37 +71,51 @@ class FloatingWindowService : Service() {
             }
         }
 
-        val btnStartStop = floatingView.findViewById<Button>(R.id.btnStartStop)
-        btnStartStop.setOnClickListener {
+        btnStartStop = floatingView.findViewById<Button>(R.id.btnStartStop)
+        btnStartStop?.setOnClickListener {
             val svc = GarenaAccessibilityService.instance
+            if (svc == null) {
+                Toast.makeText(this, "⚠ Go back to Garena app → Step 3 → Enable Accessibility", Toast.LENGTH_LONG).show()
+                return@setOnClickListener
+            }
             if (!GarenaAccessibilityService.isClickEnabled) {
-                if (svc == null) {
-                    Toast.makeText(this, "⚠ Enable Accessibility first!\nSettings → Accessibility → Garena Auto Clicker → ON", Toast.LENGTH_LONG).show()
-                    return@setOnClickListener
-                }
-                GarenaAccessibilityService.isClickEnabled = true
-                btnStartStop.text = "■ STOP"
-                btnStartStop.setBackgroundColor(0xFFE53935.toInt())
-                launchViaApp()
-                Toast.makeText(this, "▶ Auto-click started! Opening Via...", Toast.LENGTH_SHORT).show()
-                // Auto-stop after 10 seconds if no click happened
-                handler.postDelayed({
-                    if (GarenaAccessibilityService.isClickEnabled) {
-                        GarenaAccessibilityService.isClickEnabled = false
-                        btnStartStop.text = "▶ START"
-                        btnStartStop.setBackgroundColor(0xFF43A047.toInt())
-                    }
-                }, 10000)
+                startAutoClick(svc)
             } else {
-                GarenaAccessibilityService.isClickEnabled = false
-                btnStartStop.text = "▶ START"
-                btnStartStop.setBackgroundColor(0xFF43A047.toInt())
-                Toast.makeText(this, "Stopped.", Toast.LENGTH_SHORT).show()
+                stopAutoClick()
             }
         }
 
         floatingView.findViewById<Button>(R.id.btnClose).setOnClickListener { stopSelf() }
         windowManager.addView(floatingView, params)
+    }
+
+    private fun startAutoClick(svc: GarenaAccessibilityService) {
+        GarenaAccessibilityService.isClickEnabled = true
+        btnStartStop?.text = "■ STOP"
+        btnStartStop?.setBackgroundColor(0xFFE53935.toInt())
+        launchViaApp()
+        Toast.makeText(this, "▶ Opening Via... will click Homepage automatically", Toast.LENGTH_SHORT).show()
+
+        // Fallback: if accessibility doesn't fire within 4s, do a direct gesture
+        handler.postDelayed({
+            if (GarenaAccessibilityService.isClickEnabled) {
+                // Via should be open, dispatch gesture to Via homepage area
+                svc.performGestureClick(540, 1700)
+                Toast.makeText(this, "Trying gesture click...", Toast.LENGTH_SHORT).show()
+                handler.postDelayed({
+                    if (GarenaAccessibilityService.isClickEnabled) {
+                        stopAutoClick()
+                        Toast.makeText(this, "Done — check Via app", Toast.LENGTH_SHORT).show()
+                    }
+                }, 1500)
+            }
+        }, 4000)
+    }
+
+    private fun stopAutoClick() {
+        GarenaAccessibilityService.isClickEnabled = false
+        btnStartStop?.text = "▶ START"
+        btnStartStop?.setBackgroundColor(0xFF43A047.toInt())
     }
 
     private fun launchViaApp() {
@@ -110,14 +125,15 @@ class FloatingWindowService : Service() {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
             startActivity(intent)
         } else {
-            Toast.makeText(this, "Via app not found!", Toast.LENGTH_SHORT).show()
-            GarenaAccessibilityService.isClickEnabled = false
+            Toast.makeText(this, "⚠ Via app not found on this device!", Toast.LENGTH_LONG).show()
+            stopAutoClick()
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
         GarenaAccessibilityService.isClickEnabled = false
+        handler.removeCallbacksAndMessages(null)
         if (::floatingView.isInitialized) windowManager.removeView(floatingView)
     }
 }
