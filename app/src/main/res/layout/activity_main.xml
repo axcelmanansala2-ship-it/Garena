@@ -14,15 +14,15 @@
         android:textColor="#E0E0E0"
         android:textSize="24sp"
         android:textStyle="bold"
-        android:layout_marginBottom="8dp"/>
+        android:layout_marginBottom="6dp"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Auto-click Via app • Homepage"
+        android:text="Smart detection — no accessibility needed"
         android:textColor="#9E9E9E"
-        android:textSize="14sp"
-        android:layout_marginBottom="32dp"/>
+        android:textSize="12sp"
+        android:layout_marginBottom="28dp"/>
 
     <TextView
         android:id="@+id/tvOverlayStatus"
@@ -30,33 +30,33 @@
         android:layout_height="wrap_content"
         android:text="❌ Overlay: Not Granted"
         android:textColor="#FF5252"
-        android:textSize="16sp"
-        android:layout_marginBottom="8dp"/>
+        android:textSize="15sp"
+        android:layout_marginBottom="6dp"/>
 
     <TextView
-        android:id="@+id/tvAccessibilityStatus"
+        android:id="@+id/tvUsageStatus"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="❌ Accessibility: Disabled"
+        android:text="❌ Usage Access: Not Granted"
         android:textColor="#FF5252"
-        android:textSize="16sp"
-        android:layout_marginBottom="24dp"/>
+        android:textSize="15sp"
+        android:layout_marginBottom="22dp"/>
 
     <Button
         android:id="@+id/btnGrantOverlay"
         android:layout_width="match_parent"
         android:layout_height="52dp"
-        android:text="Grant Overlay Permission"
+        android:text="1. Grant Overlay Permission"
         android:backgroundTint="#3D5AFE"
-        android:layout_marginBottom="12dp"/>
+        android:layout_marginBottom="10dp"/>
 
     <Button
-        android:id="@+id/btnGrantAccessibility"
+        android:id="@+id/btnGrantUsage"
         android:layout_width="match_parent"
         android:layout_height="52dp"
-        android:text="Enable Accessibility Service"
+        android:text="2. Grant Usage Access (Optional)"
         android:backgroundTint="#3D5AFE"
-        android:layout_marginBottom="24dp"/>
+        android:layout_marginBottom="22dp"/>
 
     <Button
         android:id="@+id/btnLaunchOverlay"
@@ -66,5 +66,14 @@
         android:textSize="16sp"
         android:backgroundTint="#43A047"
         android:enabled="false"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Only Overlay permission is required.\nUsage Access improves Via detection speed."
+        android:textColor="#616161"
+        android:textSize="11sp"
+        android:gravity="center"
+        android:layout_marginTop="16dp"/>
 
 </LinearLayout>
